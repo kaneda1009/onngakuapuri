@@ -1,15 +1,138 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>あなたにぴったりの楽曲診断</title>
-  <link rel="stylesheet" href="style.css">
+  <title>あなたにぴったりの楽曲診断！</title>
+
+  <style>
+    body {
+      font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+      background: #fdfaff;
+      color: #555;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 40px 16px;
+    }
+
+    .app {
+      background: #ffffff;
+      padding: 28px 24px;
+      border-radius: 20px;
+      max-width: 520px;
+      width: 100%;
+      box-shadow: 0 10px 30px rgba(200, 180, 255, 0.25);
+      border: 2px solid #f3eaff;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 8px;
+      color: #7a6ad8;
+      text-align: center;
+    }
+
+    p.desc {
+      font-size: 0.9rem;
+      color: #8f8f8f;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .question {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+      color: #6a6a6a;
+    }
+
+    select,
+    textarea,
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid #e6dfff;
+      background: #faf7ff;
+      color: #555;
+      font-size: 0.9rem;
+      box-shadow: inset 0 2px 4px rgba(180, 160, 255, 0.15);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+
+    button {
+      margin-top: 12px;
+      width: 100%;
+      padding: 12px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, #c7b8ff, #f7c8ff);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1rem;
+      box-shadow: 0 4px 10px rgba(180, 160, 255, 0.3);
+      transition: 0.2s ease;
+    }
+
+    button:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+
+    .result {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 2px solid #f0e6ff;
+    }
+
+    .song-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: #7a6ad8;
+    }
+
+    .song-artist {
+      font-size: 0.9rem;
+      color: #9a8fd8;
+      margin-bottom: 8px;
+    }
+
+    .reason {
+      font-size: 0.9rem;
+      color: #666;
+      white-space: pre-line;
+    }
+
+    #thumbnailArea img {
+      border-radius: 16px;
+      width: 100%;
+      margin-top: 12px;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(180, 160, 255, 0.3);
+    }
+
+    iframe {
+      border-radius: 16px;
+      margin-top: 12px;
+      width: 100%;
+    }
+  </style>
 </head>
 
 <body>
   <div class="app">
-    <h1>あなたにぴったりの楽曲診断</h1>
+    <h1>あなたにぴったりの楽曲診断！</h1>
     <p class="desc">質問に答えると、今のあなたに合う1曲をおすすめします。</p>
 
     <!-- 質問1 -->
@@ -24,7 +147,7 @@
       </select>
     </div>
 
-    <!-- 質問2（変更前：今どんな状況？） -->
+    <!-- 質問2 -->
     <div class="question">
       <label for="scene">質問2：今どんな状況？</label>
       <select id="scene">
@@ -57,6 +180,119 @@
       <div id="playerArea"></div>
     </div>
   </div>
-  <script src="script.js"></script>
-  </body>
+
+  <script>
+    // 楽曲データ
+    const songs = [
+      {
+        title: "ブレーメン",
+        artist: "ヨルシカ",
+        mood: ["sad", "anxious"],
+        scene: ["alone", "move"],
+        type: ["emotional", "slow"],
+        url: "https://www.youtube.com/watch?v=oy6MDr6I6rM&list=RDoy6MDr6I6rM&start_radio=1",
+        reason: "感情に寄り添いながら、そっと前へ進ませてくれる曲です。"
+      },
+      {
+        title: "ひたむき",
+        artist: "SUPER BEAVER",
+        mood: ["positive"],
+        scene: ["move", "work"],
+        type: ["power", "energetic"],
+        url: "https://www.youtube.com/watch?v=rOheZgDIPUs&list=RDrOheZgDIPUs&start_radio=1",
+        reason: "勢いをつけたいときに、強く背中を押してくれます。"
+      },
+      {
+        title: "僕の心",
+        artist: "PEOPLE1",
+        mood: ["sad"],
+        scene: ["alone"],
+        type: ["emotional"],
+        url: "https://www.youtube.com/watch?v=a-xQCcNeZgw&list=RDa-xQCcNeZgw&start_radio=1",
+        reason: "ゆっくりとした曲調が切ない気持ちを静かに受け止めてくれるような1曲です。"
+      },
+      {
+        title: "BUMP OF CHICKEN",
+        artist: "クロノスタシス",
+        mood: ["relax", "good"],
+        scene: ["work", "alone"],
+        type: ["slow"],
+        url: "https://www.youtube.com/watch?v=B--iJ2pNvLU&list=RDB--iJ2pNvLU&start_radio=1",
+        reason: "心を落ち着かせてくれる、リラックスできる曲です"
+      },
+      {
+        title: "群青賛歌",
+        artist: "Eve",
+        mood: ["good"],
+        scene: ["friends", "move"],
+        type: ["energetic"],
+        url: "https://www.youtube.com/watch?v=sgZjbk9eH6g&list=RDsgZjbk9eH6g&start_radio=1",
+        reason: "明るい気分をさらに盛り上げてくれる前向きな曲です。"
+      }
+    ];
+
+    // YouTube動画ID抽出
+    function extractYouTubeId(url) {
+      const reg = /(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/;
+      const match = url.match(reg);
+      return match ? match[1] : null;
+    }
+
+    // 診断ロジック
+    function pickSong(mood, scene, type) {
+      let candidates = songs.filter(
+        s => s.mood.includes(mood) && s.scene.includes(scene) && s.type.includes(type)
+      );
+
+      if (candidates.length === 0) {
+        candidates = songs.filter(s => s.mood.includes(mood));
+      }
+      if (candidates.length === 0) {
+        candidates = songs;
+      }
+
+      return candidates[Math.floor(Math.random() * candidates.length)];
+    }
+
+    // ボタン押下
+    document.getElementById("submit").addEventListener("click", () => {
+      const mood = document.getElementById("mood").value;
+      const scene = document.getElementById("scene").value;
+      const type = document.getElementById("type").value;
+
+      const song = pickSong(mood, scene, type);
+
+      document.getElementById("songTitle").textContent = song.title;
+      document.getElementById("songArtist").textContent = song.artist;
+      document.getElementById("songReason").textContent = song.reason;
+
+      const videoId = extractYouTubeId(song.url);
+      const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+
+      const thumbArea = document.getElementById("thumbnailArea");
+      const playerArea = document.getElementById("playerArea");
+
+      thumbArea.innerHTML = "";
+      playerArea.innerHTML = "";
+
+      const img = document.createElement("img");
+      img.src = thumbnailUrl;
+
+      img.addEventListener("click", () => {
+        playerArea.innerHTML = `
+          <iframe height="240"
+            src="https://www.youtube.com/embed/${videoId}?autoplay=1"
+            allow="autoplay; encrypted-media"
+            allowfullscreen>
+          </iframe>
+        `;
+      });
+
+      thumbArea.appendChild(img);
+
+      document.getElementById("result").style.display = "block";
+    });
+  </script>
+</body>
 </html>
+
